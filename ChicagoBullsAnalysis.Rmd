@@ -9,6 +9,12 @@ output: html_document
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
+```{r include=FALSE}
+# load libraries
+library(tidyverse)
+library(ggplot2)
+```
+
 ## 1. Introduction
 
 This section should provide relevant background information and justification for the project, including:
@@ -23,7 +29,8 @@ d)  justification and importance
 
 ## 2. Reading and cleaning the raw data 
 
-**Load data into R**\
+#### Load data into R
+
 In this section, all 5 datasets are imported into R. 
 
 -   `2018-19_nba_player-salaries.csv` includes the salary information of individual players in the NBA for the 2018-19 season. It is saved in the dataframe called `salary`.
@@ -42,11 +49,13 @@ team_stat_2 <- read.csv("project-data/raw/2018-19_nba_team-statistics_2.csv")
 payroll <- read.csv("project-data/raw/2019-20_nba_team-payroll.csv")
 ```
 
-**Check data**
+#### Understand data
 
 In this section, each code chunk will check the structure of the data frames, and check the summary information of the data frames.
 
 -   salary
+
+    `salary` contains 576 observations and 3 variables. There is no missing values in this dataframe.
 
 ```{r}
 str(salary)
@@ -55,12 +64,16 @@ summary(salary)
 
 -   player_stats
 
+    `player_stats` dataframe contains 708 observations and 29 variables. This dataframe has NA values in 4 variables: FG., X3P., X2P., eFG..
+
 ```{r}
 str(player_stats)
 summary(player_stats)
 ```
 
 -   team_stat_1
+
+    `team_stat_1` dataframe contains 30 observations and 25 variables. 3 columns with missing values were found, which does not contain any data.
 
 ```{r}
 str(team_stat_1)
@@ -69,6 +82,8 @@ summary(team_stat_1)
 
 -   team_stat_2
 
+    `team_stat_2` dataframe contains 30 observations and 25 variables. No missing values were found in this dataframe.
+
 ```{r}
 str(team_stat_2)
 summary(team_stat_2)
@@ -76,12 +91,45 @@ summary(team_stat_2)
 
 -   payroll
 
+    `payroll` dataframe contains 30 observations and 3 variables. No missing values were found in this dataframe.
+
 ```{r}
 str(payroll)
 summary(payroll)
 ```
 
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+#### Clean data
+
+As mentioned before, variables contains 100% NA values should be removed in team_stat_1.
+
+```{r}
+team_stat_1 <- team_stat_1[, -which(apply(team_stat_1, 2, function(x) all(is.na(x))))]
+```
+
+Variable salary in payroll should be numeric instead of character. Hence, \$ and , signs should be removed from the variable.
+
+```{r include=FALSE}
+payroll$salary <- gsub("\\$", "", payroll$salary)
+payroll$salary <- gsub(",", "", payroll$salary)
+payroll$salary <- as.numeric(payroll$salary, na.rm=TRUE)
+class(payroll$salary)
+```
+
+#### Combine data
+
+Player statistics play a crucial role in determining the optimal starting lineup. However, calculating the total payroll for the upcoming season is impossible without salary information. Therefore, we will only consider players present in the salary data frame.
+
+```{r}
+#combine player stats data and salary data
+players <- right_join(salary, player_stats, by="player_name")
+#remove players without salary information
+players <- players[complete.cases(players$salary), ]
+```
+
+```{r}
+#save players dataframe into csv
+write.csv(players, "project-data/processed/players.csv", row.names = FALSE)
+```
 
 ## 3. Exploratory analysis
 
@@ -94,6 +142,78 @@ b)  checking the distribution of variables
 c)  checking for relationships between variables, or differences between groups
 
 d)  justification for decisions made about data modelling
+
+#### Data Visualisation
+
+The first plot aim to investigate the distribution of the salaries across the whole league in each position in 2018-19 NBA season. This box plot illustrates that *centers* may be more expensive, as they have the highest average salary. At the same time, *point guards* have the widest distribution of salaries and the most expensive players, but their average salary is the lowest among all positions.
+
+```{r}
+#boxplot of salary in each positions
+p1 <- players %>%
+  filter(Pos %in% c("PG", "SG", "SF", "PF", "C")) %>%
+  ggplot(aes(x=Pos, y=salary)) +
+  geom_boxplot() +
+  labs(x="Position", y="Salary", 
+       title="Salary among different positions in 2018-19 NBA season") +
+  theme_classic()
+p1
+```
+
+```{r include=FALSE}
+# store the graph into figs folder
+ggsave("figs/salary-among-pos.png", p1)
+```
+
+In order to optimize the cost associated with a trade, it is necessary to conduct a thorough investigation of the current squad and have a better understanding of the current team.
+
+According to the data below, there are 20 players listed as Chicago Bulls players. This exceeds the limitation of 15 players on its roster. Additionally, the player with the highest salary on the roster is Otto Porter, who earns \$26,011,913. He plays in the small forward position.
+
+```{r}
+#count the current roaster number
+player_chi <- players %>%
+  filter(Tm %in% c("CHI")) %>%
+  filter(Pos %in% c("PG", "SG", "SF", "PF", "C"))
+paste0("Currently there are ",count(player_chi), " players in Chicago Bulls roaster.")
+
+temp_index <- grep(max(player_chi$salary), player_chi$salary)
+max_name <- player_chi[temp_index,]$player_name
+max_salary <- player_chi[temp_index,]$salary
+max_pos <- player_chi[temp_index,]$Pos
+paste0("The most expensive player on the roaster is ", max_name, " with a salary of ", max_salary, ". His position is ", max_pos, ".")
+
+```
+
+#### Relationships between variables
+
+-   Point Guard
+
+```{r}
+# corration
+```
+
+Shooting Guard
+
+```{r}
+
+```
+
+Small Forward
+
+```{r}
+
+```
+
+Power Forward
+
+```{r}
+
+```
+
+Center
+
+```{r}
+
+```
 
 ## 4. Data modelling and results
 
