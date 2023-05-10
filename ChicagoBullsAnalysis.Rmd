@@ -489,29 +489,67 @@ sf %>%
   top_n(20)
 ```
 
-Bojan Bogdanovic shall be picked as the starting 5 players for Chicago Bulls, while Brandon Ingram and Jayson Tatum shall serve as bench players.
+Bojan Bogdanovic shall be picked as the one of the starting 5 players for Chicago Bulls, while Brandon Ingram and Jayson Tatum shall serve as bench players. Bogdanovic is an experienced small forward from indiana pacers. Bogdanovic has an outstanding scoring ability, with a 53.8% two-points field goal percentage throughout the 2018-19 NBA season. His expected salary will be \$12,429,620 and actual salary is \$10,500,000. Additionally, raising star Brandon Ingram and Jayson Tatum have shown remarkable all-round stats in the past season, making them a potential valuable asset to Chicago Bulls.
 
 ```{r}
 temp_df <- sf %>%
-  filter(player_name %in% c("Bojan Bogdanovic", "Chicago Bulls", "Brandon Ingram"))
+  filter(player_name %in% c("Bojan Bogdanovic", "Jayson Tatum", "Brandon Ingram"))
 recommendation <- rbind(recommendation, temp_df)
 ```
 
 **Power forward**
 
 ```{r}
-
+# power forward 
+pf %>%
+  select(player_name, exp_salary, salary, Age, Tm, MP, TRB) %>%
+  arrange(exp_salary) %>%
+  top_n(20)
 ```
 
-Center
+Al-Farouq Aminu is a good defender and strong rebounder from Portland. Aminu is solid near the basket by grabbing a total rebounds of 610 in the past season in the NBA. He has a expected salary at \$15,931,354, but his is underrated with a salary at \$695,710. Meanwhile, it is suggested that young players such as John Collins and Pascal Siakam could be recruited as a back up power forward.
 
 ```{r}
+temp_df <- pf %>%
+  filter(player_name %in% c("Al-Farouq Aminu", "John Collins", "Pascal Siakam"))
+recommendation <- rbind(recommendation, temp_df)
+```
 
+**Center**
+
+```{r}
+# center
+cc %>%
+  select(player_name, exp_salary, salary, Age, Tm, MP, TRB) %>%
+  arrange(exp_salary) %>%
+  top_n(20)
+```
+
+Andre Drummond shall be considered as the starting center for Chicago Bulls, as he has an outstanding defensive statistics. Drummond has the highest total rebounds on the list above, which makes him a solid consistent player in the NBA. He has an expected salary at \$23,158,445, but his actual salary is a bit higher, with a number of \$25,434,262. Meanwhile, Jarrett Allen and Domantas Sabonis should be recruited as bench players, as they are showing promising defensive statistics at a young age.
+
+```{r}
+temp_df <- cc %>%
+  filter(player_name %in% c("Andre Drummond", "Jarrett Allen", "Domantas Sabonis"))
+recommendation <- rbind(recommendation, temp_df)
+```
+
+The total cost of the Chicago Bulls roster is \$113,579,923, which is below the salary cap of \$118,000,000. This provides the team with the opportunity to allocate the remaining funds towards recruiting new players for off-season play-offs and training.
+
+```{r}
+recommendation <- recommendation[!duplicated(recommendation$player_name), ]
+sum(recommendation$salary)
+```
+
+All recommended players statistics can be accessed from `roster.csv`
+
+```{r}
+#save roster into csv
+write.csv(players, "project-data/processed/roster.csv", row.names = FALSE)
 ```
 
 ## 6. Summary
 
-Provide a brief summary which describes the key points and findings from your project. It will also be important to acknowledge any limitations of your model and overall approach to answering the question asked of you by the general manager.
+#### Key Findings
 
 #### Limitation
 
