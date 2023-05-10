@@ -17,15 +17,35 @@ library(ggplot2)
 
 ## 1. Introduction
 
-This section should provide relevant background information and justification for the project, including:
+#### Scenario
 
-a)  relevant background information of basketball, including key metrics, position requirements etc
+As a data analyst for the Chicago Bulls in the NBA, the task at hand is to find the best five starting players within the team's budget of \$118 million for the upcoming 2019-20 season. The team's poor performance in the previous season, ranking 27th out of 30 based on win-loss record, makes this task particularly important. Additionally, Chicago Bulls team budget ranks 26th out of 30, with the highest payroll budget, Portland, having \$148 million and the best-performing team, Milwaukee Bucks, having a payroll budget of \$131 million in the previous season.
 
-b)  description of the scenario
+#### Relevant background of basketball
 
-c)  the aim of the project
+The team, Chicago Bulls are a professional basketball team based in Chicago and they compete in the NBA (National Basketball Association), which is the premier professional basketball league in North America and one of the most popular and prestigious basketball leagues in the world. Chicago Bulls ranked 27th out of 30 during 2018-19 season, which is not an ideal result.
 
-d)  justification and importance
+In basketball, there are five positions on a team: point guard, shooting guard, small forward, power forward, and center. The following list outlines each position and its specific roles and responsibilities.
+
+1.  Point Guard (PG): The point guard is usually the team's primary ball-handler and playmaker. They are responsible for bringing the ball up the court, setting up offensive plays, and distributing the ball to their teammates. A good point guard is often characterised by their assists (number of passes leading directly to a basket), steals (number of times they take the ball from an opposing player), turnovers and their ability to be a scoring threat (3-points percentages)$^{1}$.
+
+2.  Shooting Guard (SG): The shooting guard's primary role is to score points by shooting the ball from the outside and driving to the basket. A good shooting guard is often characterised by their shooting percentages (field goal percentage, three-point percentage, free throw percentage, effective field goal percentage).
+
+3.  Small Forward (SF): The small forward is a all-around position that requires a combination of skills, including shooting and defending. They often play a role as a secondary ball handler and are required to have good dribbling skills. A good small forward is often characterised by their all-around statistics, including shooting percentages (2-points percentage), rebounds, and steals$^{2}$.
+
+4.  Power Forward (PF): The power forward is typically the most physical and aggressive player who plays close to the basket. They are responsible for securing rebounds and keeping possession. Therefore, a good power forward is often characterised by their defensive statistics (Offensive Rebounds, Defensive Rebounds, Blocks)$^{3}$.
+
+5.  Center (C): The center is typically the tallest player on the team and plays close to the basket. They are responsible for defending the basket, scoring points in the paint, blocking shots, and grabbing rebounds. A good center is often characterised by their rebounding (total rebounds), blocks and shooting percentage (2-points percentage).
+
+The maximum roster size in the NBA is 15 players, with a minimum of 13 players required during the regular season. Each team should have 5 players on the court during a game and an additional 8 players available on the bench. This means 12 of the players on the roster can be active on a game day, while the remaining 3 players on the roster are typically inactive and serve as backups in case of injury or other emergencies$^{4}$.
+
+#### Project aim
+
+The project aims to use data analysis and visualization techniques to identify players across the NBA league, that can provide the highest value for Chicago Bulls within the salary cap. Ultimately, the goal of this project is to enhance the team's performance and future success in the upcoming season.
+
+#### Justification and importance
+
+The importance of this project lies in its ability to provide data-driven insights and decision makings for player selection that can positively impact the team's overall performance and success. This project should also assist with optimise the team's budget and ensure that the funds are utilised properly.
 
 ## 2. Reading and cleaning the raw data 
 
@@ -166,7 +186,7 @@ ggsave("figs/salary-among-pos.png", p1)
 
 In order to optimize the cost associated with a trade, it is necessary to conduct a thorough investigation of the current squad and have a better understanding of the current team.
 
-According to the data below, there are 20 players listed as Chicago Bulls players. This exceeds the limitation of 15 players on its roster. Additionally, the player with the highest salary on the roster is Otto Porter, who earns \$26,011,913. He plays in the small forward position.
+According to the data below, there are 20 players listed as Chicago Bulls players. This exceeds the limitation of 15 players on its roster. Additionally, the player with the highest salary on the roster is Otto Porter, who earns \$26,011,913. He plays in the small forward position. Meanwhile, Zach LaVine is the highest playing time on court.
 
 ```{r}
 #count the current roaster number
@@ -181,35 +201,43 @@ max_salary <- player_chi[temp_index,]$salary
 max_pos <- player_chi[temp_index,]$Pos
 paste0("The most expensive player on the roaster is ", max_name, " with a salary of ", max_salary, ". His position is ", max_pos, ".")
 
+temp_index <- grep(max(player_chi$MP), player_chi$MP)
+max_time_name <- player_chi[temp_index,]$player_name
+paste0("The player with the most minutes played is ", max_time_name, ".")
+
 ```
 
 #### Relationships between variables
 
+This section will explore the relationship between the variables chose and explained in the introduction for each position. It shall help to identify potential causal relationships between variables, to develop better models and make better predictions.
+
 -   Point Guard
 
-```{r}
-# corration
-```
-
-Shooting Guard
+    Assists, 3-point field goal percentage on
 
 ```{r}
-
+# 
 ```
 
-Small Forward
+-   Shooting Guard
 
 ```{r}
 
 ```
 
-Power Forward
+-   Small Forward
 
 ```{r}
 
 ```
 
-Center
+-   Power Forward
+
+```{r}
+
+```
+
+-   Center
 
 ```{r}
 
@@ -238,3 +266,11 @@ Provide a brief summary which describes the key points and findings from your pr
 \
 
 ## 7. Reference list
+
+1.  Haefner J. 7 ways to make a better point guard [Internet]. 2011 [cited 2023 May 7]. Available from: <https://www.usab.com/youth/news/2011/06/7ways-to-make-a-better-point-guard.aspx#:~:text=Point%20guard%20is%20perhaps%20the,against%20the%20opposing%20point%20guard.>
+
+2.  The ultimate guide to playing small forward [Internet]. 2015 [cited 2023 May 8]. Available from: <https://www.usab.com/youth/news/2011/06/the-ultimate-guide-to-playing-small-forward.aspx>
+
+3.  The ultimate guide to playing power forward [Internet]. 2015 [cited 2023 May 8]. Available from: <https://www.usab.com/youth/news/2011/06/the-ultimate-guide-to-playing-power-forward.aspx>
+
+4.  How many players on a basketball team? (roster size) [Internet]. 2023 [cited 2023 May 8]. Available from: <https://www.gaimday.com/blog/players-basketball-team/>
