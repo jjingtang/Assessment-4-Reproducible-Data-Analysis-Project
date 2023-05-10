@@ -551,13 +551,15 @@ write.csv(players, "project-data/processed/roster.csv", row.names = FALSE)
 
 #### Key Findings
 
+There are a total number of 15 players on the recommendation list for Chicago Bulls for the next season. Three players were identified and selected in each position based on their performance. The models are built separately for each position, so they can have separate key indicators to identify talent players. Most of the well-known players are overpaid, according to the predicted salaries. Because of the low salary cap, it is unrealistic for Chicago Bulls to sign well-performed star players for all 5 positions. On the other hand, the average age of the recommend roster is 23.3. Young players are more suitable for Chicago Bulls. Most of them are having a promised future if they keep consistent statistics. This could benefit the club by investing on these young players. Finally, a well-structured team consists with experience players and youngsters could establish the foundation of the team and potentially lead to success.
+
 #### Limitation
 
 While this model can provide valuable insights into potential valuable players for the next season and provide ideas for how teams should approach signings, it is important to acknowledge that the model still has limitations. One of the limitations is the presence of outliers in the data. For instance, some players may have high salaries despite poor performance. This could be due to insufficient data collected, as some players may have missed games due to injuries. This could negatively affect the accuracy of the prediction. Furthermore, some players may have mediocre data, but possess outstanding skills that may be beneficial to a team. However, such skills may not be noticeable in the model. This could lead to missed opportunities for teams to acquire players that are a good fit for their needs. Moreover, signing players may come with additional expenses such as associate fees, which could cause a team's budget to be insufficient. This may limit their ability to acquire the best players available. Finally, team tactics are not always fixed. The tactics of a new season may not align with the team's tactics at the time of signings, which could result in players not performing well after being signed. This could lead to significant losses for the team. Therefore, it is important for teams to carefully consider all factors before making any signings based solely on the model's predictions.
 
 #### Conclusion
 
-\
+A roster with 5 staring players and 10 substitutions were identified in the recommendation list. Finalizing this roster for the NBA's upcoming 2019-2020 season could potentially cost the Chicago Bulls a total of \$113,579,923. The selection of players was based on a modeling approach that utilized key basketball indicators. However, this report has its limitations, such as player skills specialisation, insufficient data collection, or trading difficulties. Thus, it is important for Chicago Bulls to thoughfully consider all factors and risks before making any decisions based solely on the recommendation list.\
 
 ## 7. Reference list
 
