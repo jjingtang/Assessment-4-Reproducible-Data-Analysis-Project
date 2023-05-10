@@ -13,6 +13,7 @@ knitr::opts_chunk$set(echo = TRUE)
 # load libraries
 library(tidyverse)
 library(ggplot2)
+library(broom)
 ```
 
 ## 1. Introduction
@@ -153,16 +154,6 @@ write.csv(players, "project-data/processed/players.csv", row.names = FALSE)
 
 ## 3. Exploratory analysis
 
-This section should document your exploratory data analysis and may include but is not limited to:
-
-a)  checking for errors and missing values within the datasets
-
-b)  checking the distribution of variables
-
-c)  checking for relationships between variables, or differences between groups
-
-d)  justification for decisions made about data modelling
-
 #### Data Visualisation
 
 The first plot aim to investigate the distribution of the salaries across the whole league in each position in 2018-19 NBA season. This box plot illustrates that *centers* may be more expensive, as they have the highest average salary. At the same time, *point guards* have the widest distribution of salaries and the most expensive players, but their average salary is the lowest among all positions.
@@ -186,7 +177,7 @@ ggsave("figs/salary-among-pos.png", p1)
 
 In order to optimize the cost associated with a trade, it is necessary to conduct a thorough investigation of the current squad and have a better understanding of the current team.
 
-According to the data below, there are 20 players listed as Chicago Bulls players. This exceeds the limitation of 15 players on its roster. Additionally, the player with the highest salary on the roster is Otto Porter, who earns \$26,011,913. He plays in the small forward position. Meanwhile, Zach LaVine is the highest playing time on court.
+According to the data below, there are 20 players listed as Chicago Bulls players. This exceeds the limitation of 15 players on its roster. Additionally, the player with the highest salary on the roster is Otto Porter, who earns \$26,011,913. He plays in the small forward position. In this case, Otto is not performing impressive data like his salary, so he could be cut from the current team. Meanwhile, Zach LaVine is the highest playing time on court, which means he is the current star player for Chicago Bulls.
 
 ```{r}
 #count the current roaster number
@@ -213,55 +204,320 @@ This section will explore the relationship between the variables chose and expla
 
 -   Point Guard
 
-    Assists, 3-point field goal percentage on
+    Assists (AST), steals (STL), turnovers (TOV), 3-points percentages (X3P.) are considered as key indicators for assessing point guard's performance and effectiveness. A high number of assists indicates that the point guard is effectively creating scoring opportunities for their teammates. A high number of steals and turnovers indicates that the point guard has excellent abilities to disrupt the opposing team's offensive flow and lead to scoring opportunities. A high 3-point percentage indicates that the point guard is a skilled long-range shooter and effectively winning points from the perimeter.
 
 ```{r}
-# 
+# filter all point guard players and make a new df
+pg <- players %>%
+  filter(Pos %in% "PG")
+
+# plot relationships
+pairs(formula = ~salary + AST + STL + TOV + `X3P.`, data=pg)
 ```
+
+Based on the plot, it appears that there is some degree of association between salary and the chosen variables. Furthermore, assists, steals, and turnovers demonstrate a strong correlation, which is likely due to their significance in evaluating a point guard's performance. It is possible that players who struggle in one area may struggle in others as well.
 
 -   Shooting Guard
 
-```{r}
+    Field goal percentage (FG.), three-point percentage (X3P.), free throw percentage (FT.), effective field goal percentage (eFG.) are identified as important metrics to measure the ability of a shooting guard. All the chosen variables are related to goal winning percentage, which means the shooting guard is able to consistently make shots.
 
+```{r}
+# filter all shooting guard players and make a new df
+sg <- players %>%
+  filter(Pos %in% "SG")
+
+# plot relationships
+pairs(formula = ~salary + FG. + X3P. + FT. + eFG., data=sg)
 ```
+
+According to this plot, there appears to be no significant correlation between salary and selected variables as indicated by the flat slope. Additionally, a few outliers are identified. Meanwhile, effective field goal percentage has a weak relationship to field goal percentage and 3-point goal percentage, as it is calculated from these statistics.
 
 -   Small Forward
 
-```{r}
+    Two-points field goal percentage (X2P.), total rebounds (TRB), and steals (STL) are essential to measuring small forwars. Small forwards are expected to score from inside the paint and mid-range areas, creating 2-point field goals, hence, 2-point percentage is an important indicator to reflect their scoring efficiency and effectiveness. Meanwhile, as a all-round player on the court, small forward should contribute on both offense and defense, therefore, a high total rebounds and steals indicates that the player is active and engaged in the game, which leads to team success.
 
+```{r}
+# filter all small forward players and make a new df
+sf <- players %>%
+  filter(Pos %in% "SF")
+
+# plot relationships
+pairs(formula = ~salary + X2P. + TRB + STL, data=sf)
 ```
+
+Based on the plot, the salary is positively correlate to the selected variables. Meanwhile, total rebounds and steals are positively relate to each other. It might because both total rebounds and steals require a strong defensive skill set, hence, good players who perform well in one of these areas are likely to excel in the other.
 
 -   Power Forward
 
-```{r}
+    Offensive rebounds (ORB), defensive rebounds (DRB), blocks (BLK) are important indicators of a power forward's effectiveness on the court. Offensive rebounds indicate a power forward's ability to grab a missed shot by their team and give them another chance to score, while defensive rebounds show their ability to prevent the opposing team from getting an offensive rebound and creating more scoring opportunities. Additionally, blocks are an important statistic for power forwards because they demonstrate the ability to defend the rim and protect the basket from scoring attempts by the opposing team. These data reflects a power forward's defensive ability, which is critical to assess the effectiveness of a power forward on the court.
 
+```{r}
+# filter all power forward players and make a new df
+pf <- players %>%
+  filter(Pos %in% "PF")
+
+# plot relationships
+pairs(formula = ~salary + ORB + DRB + BLK, data=pf)
 ```
+
+The plot demonstrate the relationship between each variables. It is evident that there is a positive correlation between salary, offensive rebounds (ORB), defensive rebounds (DRB), and blocks (BLK). It is crucial to note that a strong correlation between predictors can negatively affect the model's performance. Hence, the model should be proceed carefully with the issue of multicollinearity.
 
 -   Center
 
+    Total rebounds (TRB), blocks (BLK) and 2-points goal percentage (X2P.) are identified as key measurements for center players. A high total rebounds number and blocks indicates that the player can control the paint and good at defending the basket. Additionally, centers typcally score points in the paint by dunking, layups, or hook shots, therefore, the center's ability to score efficiently from inside the paint is reflected in their two-point field goal percentage.
+
+```{r}
+# filter all center players and make a new df
+cc <- players %>%
+  filter(Pos %in% "C")
+
+# plot relationships
+pairs(formula = ~salary + TRB + BLK + X2P., data=cc)
+
+```
+
+The plot provides an insightful view of the relationship between the variables salary, total rebounds (TRB), blocks (BLK) and 2-points goal percentage (X2P.). As stated previously, TRB and BLK are highly correlated, as they both measure a player's defensive capabilities. A player who excels in defensive performance is likely to receive a higher salary. Additionally, the plot reveals some outliers, particularly in the relationship between salary and 2-points goal percentage.
+
+## 4. Data modelling and results
+
+This section will build models for each position, evaluate assumptions and analyse the results.
+
+#### Point Guard
+
+```{r}
+# build model for point guard
+model_pg <- lm(salary ~ AST + STL + TOV + `X3P.`, data=pg)
+tidy(model_pg, conf.int=TRUE)
+```
+
+The linear regression model was built based on the response variable salary and predict variables assist (AST), steals (STL), turnovers (TOV) and 3-point field goal percentage (X3P.). This model provides the equation: `salary = 1635137.63 + 12179.31 * AST + 27508.10 * STL + 25865.68 * TOV - 271069.47 * X3P.`
+
+Although this is unlikely to happen in real life in a team, the model indicates that even with 0 assist, 0 steals, 0 turnovers, and 0 three-point field goal percentage, a point guard player could still receive a minimum salary of 1,635,137.63 dollars. Additionally, for every additional unit of AST, salary is estimated to increase by \$12,179.31, holding all other predictors constant. Similar to other predict variables. It is also worth mention that the P-value for selected variables are not significant (higher than 0.05), which indicates statistically these variables do not have a significant impact on determining a point guard's salary.
+
+```{r}
+# check variance inflation factor
+sqrt(car::vif(model_pg))
+
+#none with a VIF value above 5
+```
+
+```{r}
+# predict salary for pg
+pg <- mutate(pg, exp_salary = predict(model_pg, newdata=pg))
+```
+
+```{r warning=FALSE}
+# plot the predicted value against actual value
+ggplot(pg, aes(x=exp_salary, y=salary)) + 
+  geom_point() +
+  geom_abline(linetype="dashed", colour="red")
+```
+
+#### Shooting Guard
+
+```{r}
+# build model for shooting guard
+model_sg <- lm(salary ~ FG. + X3P. + FT. + eFG., data=sg)
+tidy(model_sg, conf.int=TRUE)
+```
+
+The linear regression model was built based on the response variable salary and predict variables field goals (FG), 3-point field goal percentage (X3P.), free throw (FT), effective field goal percentage (eFG). This model provides the equation: `salary = -3297710 + 36856597 * FG + 9498467 * X3P + 6840098 * FT - 28110171 * eFG.`
+
+The model indicates that with 0 field goals, 0 3-point field goal percentage, 0 free throw, and 0 effective field goal percentage, a shooting guard player could not receive any salary. Meanwhile, for every additional unit of FG, salary is estimated to increase by \$`36,856,597`, holding all other predictors constant. Similar to other predict variables. It is also worth mention that the P-value for selected variables are not significant (higher than 0.05), which indicates statistically these variables do not have a significant impact on determining a shooting guard's salary.
+
+```{r}
+# check variance inflation factor
+sqrt(car::vif(model_sg))
+
+#none with a VIF value above 5
+```
+
+```{r}
+# predict salary for sg
+sg <- mutate(sg, exp_salary = predict(model_sg, newdata=sg))
+```
+
+```{r warning=FALSE}
+# plot the predicted value against actual value
+ggplot(sg, aes(x=exp_salary, y=salary)) + 
+  geom_point() +
+  geom_abline(linetype="dashed", colour="red")
+```
+
+#### Small Forward
+
+```{r}
+# build model for small forward
+model_sf <- lm(salary ~ X2P. + TRB + STL, data=sf)
+tidy(model_sf, conf.int=TRUE)
+```
+
+The linear regression model was built based on the response variable salary and predict variables 2-points goal percentage (X2P.), total rebounds (TRB) and steals (STL). This model provides the equation: `salary = 4270006.42 - 6119055.25 * X2P + 21120.79 * TRB + 64035.38 * STL.`
+
+The model indicates that with 0 two-points goal percentage, 0 total rebounds and 0 steal, a small forward player could receive a minimum salary of \$`4,270,006.42`. Meanwhile, for every additional unit of X2P, salary is estimated to decrease by \$`6,119,055.25`, holding all other predictors constant. Similar to other predict variables. It is also worth mention that the P-value for selected variables are not significant (higher than 0.05), which indicates statistically these variables do not have a significant impact on determining a small forward's salary.
+
+```{r}
+# check variance inflation factor
+sqrt(car::vif(model_sf))
+
+#none with a VIF value above 5
+```
+
+```{r}
+# predict salary for sf
+sf <- mutate(sf, exp_salary = predict(model_sf, newdata=sf))
+```
+
+```{r warning=FALSE}
+# plot the predicted value against actual value
+ggplot(sf, aes(x=exp_salary, y=salary)) + 
+  geom_point() +
+  geom_abline(linetype="dashed", colour="red")
+```
+
+#### Power Forward
+
+```{r}
+# build model for power forward
+model_pf <- lm(salary ~ ORB + DRB + BLK, data=pf)
+tidy(model_pf, conf.int=TRUE)
+```
+
+The linear regression model was built based on the response variable salary and predict variables offensive rebounds (ORB), defensive rebounds (DRB) and blocks (BLK). This model provides the equation: `salary = 2523692.24 - 25836.84 * ORB + 34776.27 * DRB - 30824.06 * BLK.`
+
+The model indicates that with 0 offensive rebounds, 0 defensive rebounds and 0 blocks, a power forward player could receive a minimum salary of \$`2,523,692.24`. Meanwhile, for every additional unit of ORB, salary is estimated to decrease by \$`25,836.84`, which is not necessary in the real world. Similar to other predict variables. It is also worth mention that the P-value for selected variables are significant (lower than 0.05), which indicates statistically these variables have a significant impact on determining a power forward's salary.
+
+```{r}
+# check variance inflation factor
+sqrt(car::vif(model_pf))
+
+#none with a VIF value above 5
+```
+
+```{r}
+# predict salary for pf
+pf <- mutate(pf, exp_salary = predict(model_pf, newdata=pf))
+```
+
+```{r}
+# plot the predicted value against actual value
+ggplot(pf, aes(x=exp_salary, y=salary)) + 
+  geom_point() +
+  geom_abline(linetype="dashed", colour="red")
+```
+
+#### Center
+
+```{r}
+# build model for power forward
+model_cc <- lm(salary ~ TRB + BLK + X2P., data=cc)
+tidy(model_cc, conf.int=TRUE)
+```
+
+The linear regression model was built based on the response variable salary and predict variables total rebounds (TRB), blocks (BLK), and 2-points goal percentage (X2P.). This model provides the equation: `salary = 4654588.68 + 19394.64 * TRB - 40863.48 * BLK + 454056.68 * X2P.`
+
+The model indicates that with 0 total rebounds, 0 dblocks and 0 2-points goal percentage, a center player could receive a minimum salary of \$`4,654,588.68`. It is also worth mention that the P-value for selected variables are significant (lower than 0.05), which indicates statistically these variables have a significant impact on determining a center's salary.
+
+```{r}
+# check variance inflation factor
+sqrt(car::vif(model_cc))
+
+#none with a VIF value above 5
+```
+
+```{r}
+# predict salary for center
+cc <- mutate(cc, exp_salary = predict(model_cc, newdata=cc))
+```
+
+```{r}
+# plot the predicted value against actual value
+ggplot(cc, aes(x=exp_salary, y=salary)) + 
+  geom_point() +
+  geom_abline(linetype="dashed", colour="red")
+```
+
+#### Assumptions
+
+The response variable `salary` is continuous because it can take on any value within a range. All the predict variables are continuous, as they are either ratio or interval scale. The observations of players across the NBA league are independent of each other. As tested before, there are linear relationships between salary and each explanatory variable. There appear to be some outliers or high leverage points in the data; however, it is possible to provide justifiable reasons for their presence. According to the variance inflation factor values, calculated in each section, none of them were above 5, which means there is no significant multicollinearity.\
+
+## 5. Player recommendations
+
+**Point guard**
+
+```{r}
+# point guard 
+pg %>%
+  select(player_name, exp_salary, salary, Age, Tm, MP, PTS) %>%
+  arrange(exp_salary) %>%
+  top_n(20)
+```
+
+James Harden could be Chicago Bulls next starting point guard. He is currently playing in Houston Rockets, with the highest total points win on the list. The expected salary for him is \$23,028,756, and his current salary is \$30,570,000. Harden is a famous player in the NBA, known for his signature step-back jump shot. This could bring experience to the team. On the other hand, youngsters such as Jamal Murray, Trae Young should be recruited, as they have the potential to shoot or create chances for the team. Jamal Murray has an expected salary at \$11,886,564, but his current salary is \$3,499,800; similarly, Trae Young has an expected salary at \$19,447,612, but his current salary is \$5,363,280.
+
+```{r}
+# save the recommendation players in a new df
+recommendation <- pg %>%
+filter(player_name %in% c("James Harden", "Jamal Murray", "Trae Young"))
+```
+
+**Shooting guard**
+
+```{r}
+# shooting guard 
+sg %>%
+  select(player_name, exp_salary, salary, Age, Tm, MP, PTS) %>%
+  arrange(exp_salary) %>%
+  top_n(20)
+```
+
+Donovan Mitchell could be the starting shooting guard for the next season, while considering Buddy Hield, Devin Booker as bench players. Donovan Mitchell is a young player who is currently plays for Utah Jazz. Mitchell is a shooting guard with a relevantly high total points, which makes him one of the most promising young stars in the NBA. He shall have an expected salary at \$7,717,589, however, his current salary is at \$3,111,480. Similarly, Buddy Hield and Devin Booker are also young players who have demonstrated promising statistics and command a relatively low salary. This makes them ideal candidates for recruitment as bench players.
+
+```{r}
+temp_df <- sg %>%
+filter(player_name %in% c("Donovan Mitchell", "Buddy Hield", "Devin Booker"))
+recommendation <- rbind(recommendation, temp_df)
+```
+
+**Small forward**
+
+```{r}
+# small forward 
+sf %>%
+  select(player_name, exp_salary, salary, Age, Tm, MP, PTS) %>%
+  arrange(exp_salary) %>%
+  top_n(20)
+```
+
+Bojan Bogdanovic shall be picked as the starting 5 players for Chicago Bulls, while Brandon Ingram and Jayson Tatum shall serve as bench players.
+
+```{r}
+temp_df <- sf %>%
+  filter(player_name %in% c("Bojan Bogdanovic", "Chicago Bulls", "Brandon Ingram"))
+recommendation <- rbind(recommendation, temp_df)
+```
+
+**Power forward**
+
 ```{r}
 
 ```
 
-## 4. Data modelling and results
+Center
 
-This section may include but is not limited to:
+```{r}
 
-a)  data modelling (e.g. creating a linear regression)
-
-b)  assumption checking
-
-c)  model output and interpretation of your model
-
-\
-
-## 5. Player recommendations
-
-**This section will be the key part that is presented to the general manager**. Here you should present your recommendations for the best five starting players, but also think about what other important information they would want to know, and how it is best to present that information to them.  
+```
 
 ## 6. Summary
 
 Provide a brief summary which describes the key points and findings from your project. It will also be important to acknowledge any limitations of your model and overall approach to answering the question asked of you by the general manager.
+
+#### Limitation
+
+While this model can provide valuable insights into potential valuable players for the next season and provide ideas for how teams should approach signings, it is important to acknowledge that the model still has limitations. One of the limitations is the presence of outliers in the data. For instance, some players may have high salaries despite poor performance. This could be due to insufficient data collected, as some players may have missed games due to injuries. This could negatively affect the accuracy of the prediction. Furthermore, some players may have mediocre data, but possess outstanding skills that may be beneficial to a team. However, such skills may not be noticeable in the model. This could lead to missed opportunities for teams to acquire players that are a good fit for their needs. Moreover, signing players may come with additional expenses such as associate fees, which could cause a team's budget to be insufficient. This may limit their ability to acquire the best players available. Finally, team tactics are not always fixed. The tactics of a new season may not align with the team's tactics at the time of signings, which could result in players not performing well after being signed. This could lead to significant losses for the team. Therefore, it is important for teams to carefully consider all factors before making any signings based solely on the model's predictions.
+
+#### Conclusion
 
 \
 
